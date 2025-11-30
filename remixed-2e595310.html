@@ -1,0 +1,1314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Travel Proposal</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', -apple-system, sans-serif; background: #ffffff; color: #1a1a1a; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #f5f5f5; }
+    ::-webkit-scrollbar-thumb { background: #ddd; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #ccc; }
+    input, select, button { font-family: inherit; }
+    input:focus, select:focus { outline: none; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  
+  <script type="text/babel">
+    const { useState, useRef } = React;
+
+    const BASE_URL = 'https://williambicknell.github.io/epic/';
+    const IMAGES = {
+      cover: `${BASE_URL}pexels-greg-gulik-349419-1001435.jpg`,
+      medersa_pool: `${BASE_URL}pexels-elodie-38056948-12675073.jpg`,
+      tagines: `${BASE_URL}pexels-taryn-elliott-3889843.jpg`,
+      koutoubia: `${BASE_URL}pexels-girlvsglobe86-300284270-17644052.jpg`,
+      restaurant: `${BASE_URL}pexels-olly-3760256.jpg`,
+      spice_vendor: `${BASE_URL}pexels-naimbic-2610821.jpg`,
+      medersa_arch: `${BASE_URL}pexels-pablolglez-34929946.jpg`,
+      corridor: `${BASE_URL}pexels-stijn-dijkstra-1306815-30710070.jpg`,
+      riad_pool: `${BASE_URL}pexels-taryn-elliott-4502967.jpg`,
+      baskets: `${BASE_URL}pexels-reyyan-505450018-33429795.jpg`,
+      copper_souk: `${BASE_URL}pexels-lucasallmann-1378424.jpg`,
+      medina_street: `${BASE_URL}pexels-stijn-dijkstra-1306815-30710069.jpg`,
+      archway_bike: `${BASE_URL}pexels-thomas-balabaud-735585-34855132.jpg`,
+    };
+    
+    const TRAVEL_DATA = {
+      activities: [
+        { id: 'act_1', country: 'Morocco', location: 'Marrakech', title: 'Morning at Leisure', description_short: 'Explore Marrakech at leisure. Visit hammam, spa or YSL museum.', description_long: 'This morning is yours to explore Marrakech at leisure. Return to the souks and barter for colourful textiles, aromatic spices, and hand-made ceramics.', duration: '3h' },
+        { id: 'act_2', country: 'Morocco', location: 'Marrakech', title: 'Half-Day Medina Walking Tour', description_short: 'Navigate the ancient medina and learn to orient yourself.', description_long: 'Marrakech\'s medina is a beguiling labyrinth of alleyways, souks and traditional artisan workshops where little has changed since the Middle Ages.', duration: '4h' },
+        { id: 'act_3', country: 'Morocco', location: 'Marrakech', title: 'Evening Medina Tour', description_short: 'Watch Jemaa el-Fna transform into al fresco dining.', duration: '3h' },
+        { id: 'act_4', country: 'Morocco', location: 'Marrakech', title: 'Jardins Majorelle & YSL Museum', description_short: 'Explore artistic splendor of Majorelle and YSL Museum.', duration: '3h' },
+        { id: 'act_5', country: 'Morocco', location: 'Atlas Mountains', title: 'Via Ferrata Ascent', description_short: 'Summit Jbel Inslif via challenging Via Ferrata route.', duration: '6h' },
+        { id: 'act_6', country: 'Morocco', location: 'Atlas Mountains', title: 'Mountain Prep with Kris Erickson', description_short: 'Survival training through Zawiya Ahansal Gorges.', duration: '8h' },
+        { id: 'act_7', country: 'Morocco', location: 'Marrakech', title: 'Mostresso Art Foundation', description_short: 'Private curator-led visit to contemporary works.', duration: '2h' },
+        { id: 'act_8', country: 'Morocco', location: 'Marrakech', title: 'Evening Street Food Tour', description_short: 'Explore hidden culinary gems in the Medina.', duration: '3.5h' },
+      ],
+      hotels: [
+        { id: 'htl_1', country: 'Morocco', location: 'Marrakech', name: 'Riad Adore', description_short: 'Cool, chic, contemporary riad in the Medina.', description_long: 'Riad Adore is a cool, chic, contemporary riad in the very best area of the Medina, close to the souks, the monuments and the main square.', roomType: '2x Room', meals: 'Breakfast', pricePerNight: 250 },
+        { id: 'htl_2', country: 'Morocco', location: 'Marrakech', name: 'Amanjena', description_short: 'Palatial resort with High Atlas views.', roomType: 'Pavilion', meals: 'Half Board', pricePerNight: 850 },
+        { id: 'htl_3', country: 'Morocco', location: 'Atlas Mountains', name: 'Dar Inslif', description_short: 'Traditional hand-stacked stone guesthouse.', roomType: 'Twin Room', meals: 'Full Board', pricePerNight: 120 },
+      ],
+      transfers: [
+        { id: 'trf_1', country: 'Morocco', title: 'Arrival Marrakech Airport', description_short: 'Private transfer to riad in the Medina.', duration: '30min' },
+        { id: 'trf_2', country: 'Morocco', title: 'Marrakech to Zawiya Ahansal', description_short: 'Scenic transfer through the Atlas Mountains.', duration: '6h' },
+      ],
+      restaurants: [
+        { id: 'rst_1', country: 'Morocco', location: 'Marrakech', name: 'Dar Yacout', description_short: 'Elegant traditional Moroccan dining.', duration: '2h' },
+        { id: 'rst_2', country: 'Morocco', location: 'Marrakech', name: 'Al Fassia Gueliz', description_short: 'Family-run traditional cuisine.', duration: '2h' },
+      ]
+    };
+
+    const Icons = {
+      Hotel: () => <svg style={{width:20,height:20}} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>,
+      Activity: () => <svg style={{width:20,height:20}} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg>,
+      Restaurant: () => <svg style={{width:20,height:20}} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>,
+      Transfer: () => <svg style={{width:20,height:20}} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" /></svg>,
+      Plus: () => <svg style={{width:18,height:18}} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>,
+      Trash: () => <svg style={{width:16,height:16}} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>,
+      Clock: () => <svg style={{width:14,height:14}} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
+      Close: () => <svg style={{width:24,height:24}} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M6 18L18 6M6 6l12 12" /></svg>,
+      Moon: () => <svg style={{width:14,height:14}} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>,
+      Eye: () => <svg style={{width:20,height:20}} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>,
+      ArrowLeft: () => <svg style={{width:20,height:20}} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>,
+      ArrowRight: () => <svg style={{width:20,height:20}} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>,
+      Calendar: () => <svg style={{width:16,height:16}} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>,
+    };
+
+    // Styles matching PDF aesthetic
+    const styles = {
+      accent: '#e67e22',
+      accentLight: '#fef3e7',
+      dark: '#1a1a1a',
+      gray: '#6b7280',
+      grayLight: '#9ca3af',
+      grayLighter: '#e5e7eb',
+      grayLightest: '#f9fafb',
+    };
+
+    // Client View - Full screen proposal matching PDF design
+    function ClientView({ itinerary, tripDetails, onClose }) {
+      const [currentPage, setCurrentPage] = useState(0);
+      const [comments, setComments] = useState([]);
+      const [newComment, setNewComment] = useState('');
+      const [showCommentPanel, setShowCommentPanel] = useState(false);
+
+      const getDates = () => {
+        const dates = [];
+        const start = new Date(tripDetails.startDate);
+        for (let i = 0; i < tripDetails.duration; i++) {
+          const d = new Date(start);
+          d.setDate(start.getDate() + i);
+          dates.push(d);
+        }
+        return dates;
+      };
+
+      const getDateKey = (date) => date.toISOString().split('T')[0];
+      const dates = getDates();
+      const formatDateShort = (d) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+      const formatDateLong = (d) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long' });
+      const formatDateRange = (start, nights) => {
+        const end = new Date(start);
+        end.setDate(start.getDate() + nights - 1);
+        return `${start.getDate()}-${end.getDate()} ${start.toLocaleDateString('en-GB', { month: 'long' })}`;
+      };
+      const tripYear = new Date(tripDetails.startDate).getFullYear();
+
+      const pages = [];
+      pages.push({ type: 'cover' });
+      pages.push({ type: 'journey-header' });
+      pages.push({ type: 'journey-glance' });
+
+      dates.forEach((date, idx) => {
+        const key = getDateKey(date);
+        const dayData = itinerary[key];
+        if (dayData && (dayData.hotel?.isFirstNight || (dayData.activities && dayData.activities.length > 0))) {
+          pages.push({ type: 'day', dayIndex: idx, date, dayData });
+        }
+      });
+
+      const hotels = [];
+      dates.forEach((date, idx) => {
+        const key = getDateKey(date);
+        const dayData = itinerary[key];
+        if (dayData?.hotel?.isFirstNight) {
+          hotels.push({ ...dayData.hotel, startDate: date, dayNum: idx + 1 });
+        }
+      });
+
+      if (hotels.length > 0) {
+        pages.push({ type: 'hotels-header' });
+        hotels.forEach(hotel => pages.push({ type: 'hotel', hotel }));
+      }
+
+      pages.push({ type: 'closing' });
+
+      const addComment = () => {
+        if (newComment.trim()) {
+          setComments([...comments, {
+            id: Date.now(),
+            page: currentPage,
+            pageTitle: getPageTitle(pages[currentPage]),
+            text: newComment,
+            author: 'Client',
+            timestamp: new Date().toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
+          }]);
+          setNewComment('');
+        }
+      };
+
+      const getPageTitle = (page) => {
+        switch(page.type) {
+          case 'cover': return 'Cover';
+          case 'journey-header': return 'Journey Overview';
+          case 'journey-glance': return 'Journey at a Glance';
+          case 'day': return `Day ${String(page.dayIndex + 1).padStart(2, '0')}`;
+          case 'hotels-header': return 'Accommodations';
+          case 'hotel': return page.hotel.name;
+          case 'closing': return 'Closing';
+          default: return 'Page';
+        }
+      };
+
+      // PDF-accurate footer component
+      const PageFooter = () => (
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 16, marginTop: 'auto', color: '#9ca3af', fontSize: 13 }}>
+          <span>←</span>
+          <span style={{ fontWeight: 500, color: '#1a1a1a' }}>{tripDetails.destination} {tripYear}</span>
+          <span>→</span>
+        </div>
+      );
+
+      const renderPage = (page) => {
+        const pageStyle = { width: '100%', height: '100%', position: 'relative', overflow: 'hidden', background: 'white', display: 'flex', flexDirection: 'column' };
+        
+        switch (page.type) {
+          case 'cover':
+            return (
+              <div style={{ ...pageStyle, background: '#f5f3f0', padding: 40 }}>
+                <p style={{ textAlign: 'right', color: '#6b7280', fontSize: 13 }}>Your Travel Proposal</p>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                  <div style={{ width: 32, height: 2, background: '#1a1a1a', marginBottom: 24 }} />
+                  <h1 style={{ fontSize: 44, fontWeight: 700, lineHeight: 1.15, color: '#1a1a1a', margin: 0 }}>
+                    {tripDetails.title}.
+                  </h1>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                  <p style={{ color: '#6b7280', fontSize: 14, margin: 0 }}>{tripDetails.destination} {tripYear}</p>
+                  <span style={{ color: '#9ca3af', fontSize: 18 }}>→</span>
+                </div>
+              </div>
+            );
+
+          case 'journey-header':
+            return (
+              <div style={{ ...pageStyle }}>
+                <div style={{ flex: 1, background: '#d4c4b0' }} />
+                <div style={{ padding: 40 }}>
+                  <div style={{ width: 32, height: 2, background: '#1a1a1a', marginBottom: 16 }} />
+                  <h2 style={{ fontSize: 28, fontWeight: 700, margin: 0, marginBottom: 16 }}>Journey Overview</h2>
+                  <PageFooter />
+                </div>
+              </div>
+            );
+
+          case 'journey-glance':
+            return (
+              <div style={{ ...pageStyle, padding: 40 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 24, fontSize: 12, color: '#6b7280' }}>
+                  <span>Your Journey at a Glance</span>
+                  <span>Your Travel Proposal</span>
+                </div>
+                <h2 style={{ fontSize: 28, fontWeight: 700, margin: 0, marginBottom: 32 }}>Your Journey at a Glance</h2>
+                <div style={{ flex: 1, overflow: 'auto' }}>
+                  {dates.map((date, idx) => {
+                    const key = getDateKey(date);
+                    const dayData = itinerary[key] || {};
+                    const hasContent = dayData.hotel?.isFirstNight || (dayData.activities && dayData.activities.length > 0);
+                    if (!hasContent && idx > 3) return null;
+                    
+                    return (
+                      <div key={idx} style={{ display: 'flex', gap: 24, marginBottom: 20 }}>
+                        <div style={{ width: 60 }}>
+                          <p style={{ color: styles.accent, fontWeight: 600, fontSize: 14, margin: 0 }}>Day {String(idx + 1).padStart(2, '0')}</p>
+                          <p style={{ color: '#9ca3af', fontSize: 12, margin: 0, marginTop: 2 }}>{formatDateShort(date)}</p>
+                        </div>
+                        <div style={{ flex: 1 }}>
+                          {hasContent ? (
+                            <>
+                              <p style={{ color: styles.accent, fontWeight: 600, fontSize: 14, margin: 0, marginBottom: 6 }}>
+                                {dayData.activities?.[0]?.location || dayData.hotel?.location || 'Explore'}
+                              </p>
+                              {dayData.activities?.map((act, i) => (
+                                <p key={i} style={{ color: '#4b5563', fontSize: 13, margin: 0, marginBottom: 4 }}>{act.name || act.title}</p>
+                              ))}
+                              {dayData.hotel?.isFirstNight && (
+                                <p style={{ color: '#6b7280', fontSize: 13, margin: 0, marginTop: 4 }}>Hotel: {dayData.hotel.name}</p>
+                              )}
+                            </>
+                          ) : (
+                            <p style={{ color: '#9ca3af', fontSize: 13, margin: 0, fontStyle: 'italic' }}>At leisure</p>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                <PageFooter />
+              </div>
+            );
+
+          case 'day':
+            return (
+              <div style={{ ...pageStyle, padding: 40 }}>
+                <p style={{ fontSize: 12, fontWeight: 600, margin: 0, marginBottom: 16 }}>DAY {String(page.dayIndex + 1).padStart(2, '0')}</p>
+                
+                {/* Image grid placeholder */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, height: 160, marginBottom: 20 }}>
+                  <div style={{ background: '#e5e1dc', borderRadius: 4 }} />
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    <div style={{ flex: 1, background: '#d4c4b0', borderRadius: 4 }} />
+                    <div style={{ flex: 1, background: '#c4b8a8', borderRadius: 4 }} />
+                  </div>
+                </div>
+
+                <h2 style={{ fontSize: 26, fontWeight: 700, margin: 0, marginBottom: 16 }}>{page.dayData.activities?.[0]?.location || 'Marrakech'}</h2>
+                <p style={{ color: '#4b5563', fontSize: 14, lineHeight: 1.7, margin: 0, flex: 1 }}>
+                  {page.dayData.activities?.[0]?.description_long || page.dayData.activities?.[0]?.description_short || 'Explore at your leisure and discover the local culture and cuisine.'}
+                </p>
+                <PageFooter />
+              </div>
+            );
+
+          case 'hotels-header':
+            return (
+              <div style={{ ...pageStyle }}>
+                <div style={{ flex: 1, background: '#2d2926' }} />
+                <div style={{ padding: 40 }}>
+                  <div style={{ width: 32, height: 2, background: '#1a1a1a', marginBottom: 16 }} />
+                  <h2 style={{ fontSize: 28, fontWeight: 700, margin: 0, marginBottom: 16 }}>Where you'll be Staying</h2>
+                  <PageFooter />
+                </div>
+              </div>
+            );
+
+          case 'hotel':
+            return (
+              <div style={{ ...pageStyle }}>
+                {/* Image area with date badge */}
+                <div style={{ height: '35%', background: '#d4c4b0', position: 'relative' }}>
+                  <div style={{ position: 'absolute', top: 16, left: 16, background: 'white', padding: '8px 14px', borderRadius: 4 }}>
+                    <p style={{ fontWeight: 500, fontSize: 13, margin: 0 }}>{formatDateRange(page.hotel.startDate, page.hotel.nights)}</p>
+                  </div>
+                </div>
+                
+                {/* Hotel details with dashed lines */}
+                <div style={{ flex: 1, padding: 32 }}>
+                  {[
+                    ['Hotel', page.hotel.name, true],
+                    ['Nights', page.hotel.nights],
+                    ['Room Type', page.hotel.roomType || '2x Room'],
+                    ['Meals', page.hotel.meals || 'Breakfast'],
+                  ].map(([label, value, isAccent], i) => (
+                    <div key={i} style={{ display: 'flex', borderBottom: '1px dashed #d1d5db', padding: '12px 0' }}>
+                      <span style={{ width: 90, fontWeight: 500, fontSize: 14 }}>{label}</span>
+                      <span style={{ color: isAccent ? styles.accent : '#1a1a1a', fontWeight: isAccent ? 500 : 400, fontSize: 14 }}>{value}</span>
+                    </div>
+                  ))}
+                  <p style={{ color: '#4b5563', fontSize: 14, lineHeight: 1.7, marginTop: 20 }}>
+                    {page.hotel.description_long || page.hotel.description_short}
+                  </p>
+                  <PageFooter />
+                </div>
+              </div>
+            );
+
+          case 'closing':
+            return (
+              <div style={{ ...pageStyle, background: '#4a4543', padding: 40, justifyContent: 'flex-start' }}>
+                <div style={{ marginTop: 40 }}>
+                  <div style={{ width: 32, height: 2, background: 'white', marginBottom: 24 }} />
+                  <h2 style={{ fontSize: 26, fontWeight: 500, color: 'white', lineHeight: 1.5, margin: 0 }}>
+                    We look forward to<br />welcoming you to<br />{tripDetails.destination}!
+                  </h2>
+                </div>
+              </div>
+            );
+
+          default:
+            return null;
+        }
+      };
+
+      return (
+        <div style={{ position: 'fixed', inset: 0, background: '#f5f3f0', zIndex: 1000, display: 'flex', flexDirection: 'column' }}>
+          {/* Header */}
+          <div style={{ padding: '12px 24px', background: 'white', borderBottom: '1px solid #e5e7eb', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+              <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#6b7280', cursor: 'pointer', fontSize: 13 }}>← Back to Editor</button>
+              <span style={{ color: '#e5e7eb' }}>|</span>
+              <span style={{ fontWeight: 600, fontSize: 14 }}>{tripDetails.title}</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <button 
+                onClick={() => setShowCommentPanel(!showCommentPanel)}
+                style={{ padding: '8px 14px', background: showCommentPanel ? '#1a1a1a' : 'white', border: '1px solid #e5e7eb', borderRadius: 6, color: showCommentPanel ? 'white' : '#4b5563', cursor: 'pointer', fontSize: 13, fontWeight: 500 }}
+              >
+                💬 Comments {comments.length > 0 ? `(${comments.length})` : ''}
+              </button>
+              <button style={{ padding: '8px 14px', background: 'white', border: '1px solid #e5e7eb', borderRadius: 6, color: '#4b5563', cursor: 'pointer', fontSize: 13, fontWeight: 500 }}>
+                📥 Download PDF
+              </button>
+            </div>
+          </div>
+
+          {/* Main content */}
+          <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
+            {/* Page viewer */}
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+              {/* Page content */}
+              <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 32 }}>
+                <div style={{ 
+                  width: '100%', 
+                  maxWidth: 420, 
+                  height: '100%',
+                  maxHeight: 'calc(100vh - 180px)',
+                  aspectRatio: '9/16', 
+                  background: 'white', 
+                  borderRadius: 4, 
+                  overflow: 'hidden', 
+                  boxShadow: '0 4px 24px rgba(0,0,0,0.12)'
+                }}>
+                  {renderPage(pages[currentPage])}
+                </div>
+              </div>
+
+              {/* Navigation */}
+              <div style={{ padding: '16px 24px', background: 'white', borderTop: '1px solid #e5e7eb', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
+                <button 
+                  onClick={() => setCurrentPage(Math.max(0, currentPage - 1))}
+                  disabled={currentPage === 0}
+                  style={{ padding: '10px 20px', background: 'white', border: '1px solid #e5e7eb', borderRadius: 6, color: currentPage === 0 ? '#d1d5db' : '#4b5563', cursor: currentPage === 0 ? 'default' : 'pointer', fontWeight: 500, fontSize: 13 }}
+                >
+                  ← Previous
+                </button>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  {pages.map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setCurrentPage(idx)}
+                      style={{ 
+                        width: idx === currentPage ? 24 : 8, 
+                        height: 8, 
+                        borderRadius: 4, 
+                        border: 'none', 
+                        cursor: 'pointer', 
+                        background: idx === currentPage ? styles.accent : '#d1d5db', 
+                        transition: 'all 0.2s' 
+                      }}
+                    />
+                  ))}
+                </div>
+                <button 
+                  onClick={() => setCurrentPage(Math.min(pages.length - 1, currentPage + 1))}
+                  disabled={currentPage === pages.length - 1}
+                  style={{ padding: '10px 20px', background: currentPage === pages.length - 1 ? 'white' : styles.accent, border: currentPage === pages.length - 1 ? '1px solid #e5e7eb' : 'none', borderRadius: 6, color: currentPage === pages.length - 1 ? '#d1d5db' : 'white', cursor: currentPage === pages.length - 1 ? 'default' : 'pointer', fontWeight: 500, fontSize: 13 }}
+                >
+                  Next →
+                </button>
+              </div>
+            </div>
+
+            {/* Comments panel */}
+            {showCommentPanel && (
+              <div style={{ width: 320, background: 'white', borderLeft: '1px solid #e5e7eb', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
+                <div style={{ padding: 20, borderBottom: '1px solid #e5e7eb' }}>
+                  <h3 style={{ fontWeight: 600, fontSize: 15, margin: 0, marginBottom: 4 }}>Comments & Feedback</h3>
+                  <p style={{ color: '#6b7280', fontSize: 13, margin: 0 }}>Share your thoughts on this proposal</p>
+                </div>
+                
+                <div style={{ flex: 1, overflow: 'auto', padding: 16 }}>
+                  {comments.length === 0 ? (
+                    <div style={{ textAlign: 'center', padding: 32, color: '#9ca3af' }}>
+                      <p style={{ fontSize: 28, marginBottom: 8 }}>💬</p>
+                      <p style={{ fontSize: 14, margin: 0 }}>No comments yet</p>
+                      <p style={{ fontSize: 13, margin: 0, marginTop: 4 }}>Add feedback on any page</p>
+                    </div>
+                  ) : (
+                    comments.map(comment => (
+                      <div key={comment.id} style={{ background: '#f9fafb', borderRadius: 8, padding: 14, marginBottom: 10 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                          <span style={{ fontSize: 12, color: styles.accent, fontWeight: 600 }}>{comment.pageTitle}</span>
+                          <span style={{ fontSize: 11, color: '#9ca3af' }}>{comment.timestamp}</span>
+                        </div>
+                        <p style={{ color: '#1a1a1a', fontSize: 14, lineHeight: 1.5, margin: 0 }}>{comment.text}</p>
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                <div style={{ padding: 16, borderTop: '1px solid #e5e7eb' }}>
+                  <p style={{ fontSize: 12, color: '#6b7280', margin: 0, marginBottom: 8 }}>Comment on: <span style={{ color: styles.accent, fontWeight: 500 }}>{getPageTitle(pages[currentPage])}</span></p>
+                  <textarea 
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
+                    placeholder="Add your feedback..."
+                    style={{ width: '100%', padding: 12, background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: 8, color: '#1a1a1a', fontSize: 14, resize: 'none', height: 80, fontFamily: 'inherit' }}
+                  />
+                  <button 
+                    onClick={addComment}
+                    disabled={!newComment.trim()}
+                    style={{ width: '100%', marginTop: 8, padding: 12, background: newComment.trim() ? styles.accent : '#e5e7eb', border: 'none', borderRadius: 8, color: newComment.trim() ? 'white' : '#9ca3af', cursor: newComment.trim() ? 'pointer' : 'default', fontWeight: 600, fontSize: 14 }}
+                  >
+                    Add Comment
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    // Share Modal
+    function ShareModal({ tripDetails, onClose, onOpenClientView }) {
+      const [copied, setCopied] = useState(false);
+      const shareUrl = `https://epictravel.com/proposal/${tripDetails.title.toLowerCase().replace(/\s+/g, '-')}-${Date.now().toString(36)}`;
+
+      const copyLink = () => {
+        navigator.clipboard.writeText(shareUrl);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      };
+
+      return (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }} onClick={onClose}>
+          <div style={{ background: 'white', borderRadius: 16, maxWidth: 480, width: '100%', overflow: 'hidden' }} onClick={e => e.stopPropagation()}>
+            <div style={{ padding: 32 }}>
+              <div style={{ width: 48, height: 48, background: styles.accentLight, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
+                <span style={{ fontSize: 24 }}>🔗</span>
+              </div>
+              <h2 style={{ fontSize: 24, fontWeight: 700, marginBottom: 8 }}>Share Proposal</h2>
+              <p style={{ color: '#6b7280', marginBottom: 24 }}>Send this link to your client to review the proposal and leave feedback.</p>
+              
+              <div style={{ background: '#f9fafb', borderRadius: 8, padding: 4, display: 'flex', gap: 8, marginBottom: 24 }}>
+                <input 
+                  type="text" 
+                  value={shareUrl} 
+                  readOnly 
+                  style={{ flex: 1, padding: '12px 16px', border: 'none', background: 'transparent', fontSize: 14, color: '#4b5563' }}
+                />
+                <button 
+                  onClick={copyLink}
+                  style={{ padding: '12px 20px', background: copied ? '#10b981' : styles.accent, border: 'none', borderRadius: 6, color: 'white', cursor: 'pointer', fontWeight: 600, whiteSpace: 'nowrap' }}
+                >
+                  {copied ? '✓ Copied!' : 'Copy Link'}
+                </button>
+              </div>
+
+              <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: 24 }}>
+                <p style={{ fontSize: 13, color: '#6b7280', marginBottom: 16 }}>Or preview how your client will see it:</p>
+                <button 
+                  onClick={onOpenClientView}
+                  style={{ width: '100%', padding: 16, background: '#1a1a1a', border: 'none', borderRadius: 8, color: 'white', cursor: 'pointer', fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
+                >
+                  👁️ Preview Client View
+                </button>
+              </div>
+            </div>
+
+            <div style={{ background: '#f9fafb', padding: '16px 32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <p style={{ fontSize: 13, color: '#6b7280' }}>Client can comment & download PDF</p>
+              <button onClick={onClose} style={{ padding: '8px 16px', background: 'none', border: '1px solid #e5e7eb', borderRadius: 6, cursor: 'pointer', color: '#6b7280' }}>Close</button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Preview Modal
+    function PreviewModal({ itinerary, tripDetails, onClose }) {
+      const [currentPage, setCurrentPage] = useState(0);
+
+      const getDates = () => {
+        const dates = [];
+        const start = new Date(tripDetails.startDate);
+        for (let i = 0; i < tripDetails.duration; i++) {
+          const d = new Date(start);
+          d.setDate(start.getDate() + i);
+          dates.push(d);
+        }
+        return dates;
+      };
+
+      const getDateKey = (date) => date.toISOString().split('T')[0];
+      const dates = getDates();
+      const formatDateShort = (d) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+      const formatDateRange = (start, nights) => {
+        const end = new Date(start);
+        end.setDate(start.getDate() + nights);
+        return `${start.getDate()}-${end.getDate()} ${start.toLocaleDateString('en-GB', { month: 'long' })}`;
+      };
+
+      const pages = [];
+      pages.push({ type: 'cover' });
+      pages.push({ type: 'journey-header' });
+      pages.push({ type: 'journey-glance' });
+
+      dates.forEach((date, idx) => {
+        const key = getDateKey(date);
+        const dayData = itinerary[key];
+        if (dayData && (dayData.hotel?.isFirstNight || (dayData.activities && dayData.activities.length > 0))) {
+          pages.push({ type: 'day', dayIndex: idx, date, dayData });
+        }
+      });
+
+      const hotels = [];
+      dates.forEach((date, idx) => {
+        const key = getDateKey(date);
+        const dayData = itinerary[key];
+        if (dayData?.hotel?.isFirstNight) {
+          hotels.push({ ...dayData.hotel, startDate: date, dayNum: idx + 1 });
+        }
+      });
+
+      if (hotels.length > 0) {
+        pages.push({ type: 'hotels-header' });
+        hotels.forEach(hotel => pages.push({ type: 'hotel', hotel }));
+      }
+
+      pages.push({ type: 'closing' });
+
+      const renderPage = (page) => {
+        const pageStyle = { width: '100%', height: '100%', position: 'relative', overflow: 'hidden' };
+        
+        switch (page.type) {
+          case 'cover':
+            return (
+              <div style={{ ...pageStyle, position: 'relative' }}>
+                <img src="https://williambicknell.github.io/epic/pexels-greg-gulik-349419-1001435.jpg" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(255,255,255,0.4), rgba(255,255,255,0.1), rgba(255,255,255,0.6))' }} />
+                <div style={{ position: 'relative', zIndex: 10, padding: 40, height: '100%', display: 'flex', flexDirection: 'column' }}>
+                  <p style={{ textAlign: 'right', color: '#4b5563', fontSize: 13, letterSpacing: 1 }}>Your Travel Proposal</p>
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                    <div style={{ width: 32, height: 2, background: '#1a1a1a', marginBottom: 32 }} />
+                    <h1 style={{ fontSize: 42, fontWeight: 700, lineHeight: 1.1, color: '#1a1a1a' }}>
+                      {tripDetails.title}.
+                    </h1>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                    <p style={{ color: '#4b5563' }}>{tripDetails.destination} {new Date(tripDetails.startDate).getFullYear()}</p>
+                    <span style={{ color: '#9ca3af', fontSize: 20 }}>→</span>
+                  </div>
+                </div>
+              </div>
+            );
+
+          case 'journey-header':
+            return (
+              <div style={{ ...pageStyle, display: 'flex', flexDirection: 'column' }}>
+                <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
+                  <img src={IMAGES.medersa_pool} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
+                </div>
+                <div style={{ padding: 32, background: 'white' }}>
+                  <div style={{ width: 32, height: 2, background: '#1a1a1a', marginBottom: 12 }} />
+                  <h2 style={{ fontSize: 28, fontWeight: 700 }}>Journey Overview</h2>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 12, color: '#9ca3af', fontSize: 13 }}>
+                    <span>←</span>
+                    <span>{tripDetails.destination} {new Date(tripDetails.startDate).getFullYear()}</span>
+                    <span>→</span>
+                  </div>
+                </div>
+              </div>
+            );
+
+          case 'journey-glance':
+            return (
+              <div style={{ ...pageStyle, background: 'white', padding: 40, display: 'flex', flexDirection: 'column' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 32 }}>
+                  <p style={{ fontSize: 12, color: '#6b7280' }}>Your Journey at a Glance</p>
+                  <p style={{ fontSize: 12, color: '#6b7280' }}>Your Travel Proposal</p>
+                </div>
+                <h2 style={{ fontSize: 32, fontWeight: 700, marginBottom: 40 }}>Your Journey at a Glance</h2>
+                <div style={{ flex: 1 }}>
+                  {dates.slice(0, 4).map((date, idx) => {
+                    const key = getDateKey(date);
+                    const dayData = itinerary[key] || {};
+                    return (
+                      <div key={idx} style={{ display: 'flex', gap: 32, marginBottom: 24 }}>
+                        <div style={{ width: 70 }}>
+                          <p style={{ color: styles.accent, fontWeight: 600 }}>Day {String(idx + 1).padStart(2, '0')}</p>
+                          <p style={{ color: '#9ca3af', fontSize: 13 }}>{formatDateShort(date)}</p>
+                        </div>
+                        <div style={{ flex: 1 }}>
+                          <h3 style={{ color: styles.accent, fontWeight: 600, marginBottom: 8 }}>
+                            {dayData.activities?.[0]?.title || 'At Leisure'}
+                          </h3>
+                          {dayData.hotel?.isFirstNight && <p style={{ color: '#4b5563', fontSize: 14, marginBottom: 4 }}>Hotel: {dayData.hotel.name}</p>}
+                          {dayData.activities?.slice(0, 2).map((act, i) => (
+                            <p key={i} style={{ color: '#4b5563', fontSize: 14, marginBottom: 4 }}>{act.title}</p>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#9ca3af' }}>
+                  <span>←</span>
+                  <span style={{ fontSize: 13, color: '#1a1a1a', fontWeight: 500 }}>{tripDetails.destination} {new Date(tripDetails.startDate).getFullYear()}</span>
+                  <span>→</span>
+                </div>
+              </div>
+            );
+
+          case 'day':
+            return (
+              <div style={{ ...pageStyle, background: 'white', padding: 32, display: 'flex', flexDirection: 'column' }}>
+                <p style={{ fontSize: 12, fontWeight: 600, marginBottom: 16 }}>DAY {String(page.dayIndex + 1).padStart(2, '0')}</p>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, height: '38%', marginBottom: 20 }}>
+                  <div style={{ position: 'relative', borderRadius: 4, overflow: 'hidden' }}>
+                    <img src={IMAGES.koutoubia} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    <div style={{ flex: 1, position: 'relative', borderRadius: 4, overflow: 'hidden' }}>
+                      <img src={IMAGES.medersa_arch} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
+                    </div>
+                    <div style={{ flex: 1, position: 'relative', borderRadius: 4, overflow: 'hidden' }}>
+                      <img src={IMAGES.tagines} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
+                    </div>
+                  </div>
+                </div>
+                <h2 style={{ fontSize: 28, fontWeight: 700, marginBottom: 12 }}>{page.dayData.activities?.[0]?.location || 'Marrakech'}</h2>
+                <p style={{ color: '#4b5563', lineHeight: 1.6, fontSize: 14, flex: 1 }}>
+                  {page.dayData.activities?.[0]?.description_long || page.dayData.activities?.[0]?.description_short || 'Explore at your leisure.'}
+                </p>
+                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#9ca3af', marginTop: 16, fontSize: 13 }}>
+                  <span>←</span>
+                  <span style={{ color: '#1a1a1a', fontWeight: 500 }}>{tripDetails.destination} {new Date(tripDetails.startDate).getFullYear()}</span>
+                  <span>→</span>
+                </div>
+              </div>
+            );
+
+          case 'hotels-header':
+            return (
+              <div style={{ ...pageStyle, display: 'flex', flexDirection: 'column' }}>
+                <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
+                  <img src={IMAGES.medersa_arch} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
+                </div>
+                <div style={{ padding: 32, background: 'white' }}>
+                  <div style={{ width: 32, height: 2, background: '#1a1a1a', marginBottom: 12 }} />
+                  <h2 style={{ fontSize: 28, fontWeight: 700 }}>Where you'll be Staying</h2>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 12, color: '#9ca3af', fontSize: 13 }}>
+                    <span>←</span>
+                    <span>{tripDetails.destination} {new Date(tripDetails.startDate).getFullYear()}</span>
+                    <span>→</span>
+                  </div>
+                </div>
+              </div>
+            );
+
+          case 'hotel':
+            return (
+              <div style={{ ...pageStyle, background: 'white', display: 'flex', flexDirection: 'column' }}>
+                <div style={{ height: '38%', position: 'relative', overflow: 'hidden' }}>
+                  <img src={IMAGES.riad_pool} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
+                  <div style={{ position: 'absolute', top: 12, left: 12, background: 'white', padding: '6px 12px', borderRadius: 4 }}>
+                    <p style={{ fontWeight: 500, fontSize: 13 }}>{formatDateRange(page.hotel.startDate, page.hotel.nights)}</p>
+                  </div>
+                </div>
+                <div style={{ flex: 1, padding: 32 }}>
+                  <div style={{ marginBottom: 20 }}>
+                    {[
+                      ['Hotel', page.hotel.name, true],
+                      ['Nights', page.hotel.nights],
+                      ['Room Type', page.hotel.roomType || '2x Room'],
+                      ['Meals', page.hotel.meals || 'Breakfast'],
+                    ].map(([label, value, isAccent], i) => (
+                      <div key={i} style={{ display: 'flex', borderBottom: '1px dashed #e5e7eb', padding: '10px 0', fontSize: 14 }}>
+                        <span style={{ width: 90, fontWeight: 500 }}>{label}</span>
+                        <span style={{ color: isAccent ? styles.accent : '#1a1a1a', fontWeight: isAccent ? 500 : 400 }}>{value}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <p style={{ color: '#4b5563', lineHeight: 1.6, fontSize: 14 }}>{page.hotel.description_long || page.hotel.description_short}</p>
+                </div>
+              </div>
+            );
+
+          case 'closing':
+            return (
+              <div style={{ ...pageStyle, position: 'relative' }}>
+                <img src={IMAGES.archway_bike} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
+                <div style={{ position: 'absolute', inset: 0, background: 'rgba(55, 65, 81, 0.7)' }} />
+                <div style={{ position: 'relative', zIndex: 10, padding: 32, paddingTop: 60 }}>
+                  <div style={{ width: 32, height: 2, background: 'white', marginBottom: 24 }} />
+                  <h2 style={{ fontSize: 28, fontWeight: 500, color: 'white', lineHeight: 1.4 }}>
+                    We look forward to<br />welcoming you to<br />{tripDetails.destination}!
+                  </h2>
+                </div>
+              </div>
+            );
+
+          default:
+            return null;
+        }
+      };
+
+      return (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+          <div style={{ background: 'white', borderRadius: 12, maxWidth: 800, width: '100%', maxHeight: '90vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+            <div style={{ padding: 20, borderBottom: '1px solid #e5e7eb', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h2 style={{ fontSize: 18, fontWeight: 600 }}>Preview Proposal</h2>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                <span style={{ fontSize: 13, color: '#6b7280' }}>Page {currentPage + 1} of {pages.length}</span>
+                <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#9ca3af' }}><Icons.Close /></button>
+              </div>
+            </div>
+            <div style={{ flex: 1, overflow: 'hidden', background: '#f3f4f6', padding: 32, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ background: 'white', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', width: '100%', maxWidth: 400, aspectRatio: '9/16' }}>
+                {renderPage(pages[currentPage])}
+              </div>
+            </div>
+            <div style={{ padding: 20, borderTop: '1px solid #e5e7eb', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <button 
+                onClick={() => setCurrentPage(Math.max(0, currentPage - 1))}
+                disabled={currentPage === 0}
+                style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 20px', background: 'none', border: 'none', cursor: currentPage === 0 ? 'default' : 'pointer', color: currentPage === 0 ? '#d1d5db' : '#4b5563', fontWeight: 500 }}
+              >
+                <Icons.ArrowLeft /> Previous
+              </button>
+              <div style={{ display: 'flex', gap: 6 }}>
+                {pages.map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setCurrentPage(idx)}
+                    style={{ width: 8, height: 8, borderRadius: '50%', border: 'none', cursor: 'pointer', background: idx === currentPage ? styles.accent : '#d1d5db' }}
+                  />
+                ))}
+              </div>
+              <button 
+                onClick={() => setCurrentPage(Math.min(pages.length - 1, currentPage + 1))}
+                disabled={currentPage === pages.length - 1}
+                style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 20px', background: 'none', border: 'none', cursor: currentPage === pages.length - 1 ? 'default' : 'pointer', color: currentPage === pages.length - 1 ? '#d1d5db' : '#4b5563', fontWeight: 500 }}
+              >
+                Next <Icons.ArrowRight />
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Selection Modal - On Brand
+    function SelectionModal({ type, onSelect, onClose }) {
+      const [nights, setNights] = useState(1);
+      const [selectedItem, setSelectedItem] = useState(null);
+
+      const getItems = () => {
+        switch(type) {
+          case 'hotel': return TRAVEL_DATA.hotels;
+          case 'activity': return TRAVEL_DATA.activities;
+          case 'transfer': return TRAVEL_DATA.transfers;
+          case 'restaurant': return TRAVEL_DATA.restaurants;
+          default: return [];
+        }
+      };
+
+      const handleConfirm = () => {
+        if (selectedItem) {
+          const itemToAdd = { ...selectedItem };
+          if (type === 'hotel') itemToAdd.nights = nights;
+          onSelect(itemToAdd);
+        }
+      };
+
+      const typeLabels = { hotel: 'Hotel', activity: 'Activity', transfer: 'Transfer', restaurant: 'Restaurant' };
+
+      return (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }} onClick={onClose}>
+          <div style={{ background: 'white', borderRadius: 12, maxWidth: 480, width: '100%', maxHeight: '80vh', display: 'flex', flexDirection: 'column' }} onClick={e => e.stopPropagation()}>
+            <div style={{ padding: 24, borderBottom: '1px solid #e5e7eb' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <p style={{ fontSize: 12, color: '#6b7280', marginBottom: 4 }}>Select</p>
+                  <h3 style={{ fontSize: 24, fontWeight: 700 }}>{typeLabels[type]}</h3>
+                </div>
+                <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#9ca3af' }}><Icons.Close /></button>
+              </div>
+            </div>
+            <div style={{ flex: 1, overflow: 'auto', padding: 16 }}>
+              {getItems().map(item => (
+                <div 
+                  key={item.id} 
+                  onClick={() => setSelectedItem(item)}
+                  style={{ 
+                    padding: 16, 
+                    marginBottom: 8, 
+                    borderRadius: 8, 
+                    cursor: 'pointer',
+                    border: selectedItem?.id === item.id ? `2px solid ${styles.accent}` : '2px solid transparent',
+                    background: selectedItem?.id === item.id ? styles.accentLight : '#f9fafb',
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <div>
+                      <h4 style={{ fontWeight: 600, marginBottom: 4 }}>{item.name || item.title}</h4>
+                      {item.location && <p style={{ fontSize: 12, color: '#9ca3af', marginBottom: 8 }}>{item.location}</p>}
+                      <p style={{ fontSize: 13, color: '#6b7280' }}>{item.description_short}</p>
+                    </div>
+                    {item.duration && (
+                      <span style={{ fontSize: 12, color: '#6b7280', background: 'white', padding: '4px 10px', borderRadius: 20, display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <Icons.Clock /> {item.duration}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+            {type === 'hotel' && selectedItem && (
+              <div style={{ padding: 24, borderTop: '1px solid #e5e7eb', background: '#f9fafb' }}>
+                <p style={{ fontSize: 13, color: '#6b7280', marginBottom: 12 }}>Number of nights</p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                  <button onClick={() => setNights(Math.max(1, nights - 1))} style={{ width: 40, height: 40, borderRadius: '50%', border: '1px solid #e5e7eb', background: 'white', cursor: 'pointer', fontSize: 18 }}>-</button>
+                  <span style={{ fontSize: 24, fontWeight: 600, width: 40, textAlign: 'center' }}>{nights}</span>
+                  <button onClick={() => setNights(nights + 1)} style={{ width: 40, height: 40, borderRadius: '50%', border: '1px solid #e5e7eb', background: 'white', cursor: 'pointer', fontSize: 18 }}>+</button>
+                  <span style={{ fontSize: 14, color: '#6b7280' }}>night{nights > 1 ? 's' : ''}</span>
+                </div>
+              </div>
+            )}
+            <div style={{ padding: 24, borderTop: '1px solid #e5e7eb', display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
+              <button onClick={onClose} style={{ padding: '12px 24px', background: 'none', border: 'none', cursor: 'pointer', color: '#6b7280', fontWeight: 500 }}>Cancel</button>
+              <button 
+                onClick={handleConfirm} 
+                disabled={!selectedItem}
+                style={{ 
+                  padding: '12px 32px', 
+                  background: selectedItem ? styles.accent : '#e5e7eb', 
+                  color: selectedItem ? 'white' : '#9ca3af',
+                  border: 'none', 
+                  borderRadius: 8, 
+                  cursor: selectedItem ? 'pointer' : 'default',
+                  fontWeight: 600
+                }}
+              >
+                Add to Itinerary
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Day Card - On Brand
+    function DayCard({ date, dayNumber, hotel, activities, onAddHotel, onAddActivity, onRemoveHotel, onRemoveActivity }) {
+      const formatDate = (d) => d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+      
+      return (
+        <div style={{ background: 'white', borderRadius: 12, overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+          {/* Header */}
+          <div style={{ padding: 20, borderBottom: '1px solid #f3f4f6' }}>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: 12 }}>
+              <span style={{ fontSize: 28, fontWeight: 700, color: styles.accent }}>Day {String(dayNumber).padStart(2, '0')}</span>
+            </div>
+            <p style={{ fontSize: 13, color: '#9ca3af', marginTop: 4 }}>{formatDate(date)}</p>
+          </div>
+
+          {/* Hotel Section */}
+          <div style={{ padding: 20, borderBottom: '1px solid #f3f4f6' }}>
+            <p style={{ fontSize: 11, fontWeight: 600, color: '#9ca3af', letterSpacing: 1, marginBottom: 12 }}>ACCOMMODATION</p>
+            {hotel ? (
+              <div style={{ background: styles.accentLight, borderRadius: 8, padding: 16, position: 'relative' }}>
+                <h4 style={{ fontWeight: 600, marginBottom: 4 }}>{hotel.name}</h4>
+                <p style={{ fontSize: 13, color: '#6b7280', marginBottom: 8 }}>{hotel.location}</p>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 12, color: styles.accent, background: 'white', padding: '4px 10px', borderRadius: 20 }}>
+                  <Icons.Moon /> {hotel.nights} night{hotel.nights > 1 ? 's' : ''}
+                </span>
+                <button 
+                  onClick={onRemoveHotel}
+                  style={{ position: 'absolute', top: 12, right: 12, background: 'none', border: 'none', cursor: 'pointer', color: '#d1d5db', padding: 4 }}
+                  onMouseOver={e => e.currentTarget.style.color = '#ef4444'}
+                  onMouseOut={e => e.currentTarget.style.color = '#d1d5db'}
+                >
+                  <Icons.Trash />
+                </button>
+              </div>
+            ) : (
+              <button 
+                onClick={onAddHotel}
+                style={{ width: '100%', padding: 24, border: '2px dashed #e5e7eb', borderRadius: 8, background: 'transparent', cursor: 'pointer', color: '#9ca3af', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontSize: 14 }}
+                onMouseOver={e => { e.currentTarget.style.borderColor = styles.accent; e.currentTarget.style.color = styles.accent; e.currentTarget.style.background = styles.accentLight; }}
+                onMouseOut={e => { e.currentTarget.style.borderColor = '#e5e7eb'; e.currentTarget.style.color = '#9ca3af'; e.currentTarget.style.background = 'transparent'; }}
+              >
+                <Icons.Plus /> Add Hotel
+              </button>
+            )}
+          </div>
+
+          {/* Activities Section */}
+          <div style={{ padding: 20 }}>
+            <p style={{ fontSize: 11, fontWeight: 600, color: '#9ca3af', letterSpacing: 1, marginBottom: 12 }}>ACTIVITIES</p>
+            
+            {activities.map((activity, idx) => (
+              <div key={idx} style={{ background: '#f9fafb', borderRadius: 8, padding: 16, marginBottom: 8, position: 'relative' }}>
+                <div style={{ display: 'flex', gap: 12 }}>
+                  <div style={{ color: styles.accent }}>
+                    {activity.type === 'transfer' ? <Icons.Transfer /> : activity.type === 'restaurant' ? <Icons.Restaurant /> : <Icons.Activity />}
+                  </div>
+                  <div>
+                    <h4 style={{ fontWeight: 600, fontSize: 14, marginBottom: 4 }}>{activity.name || activity.title}</h4>
+                    {activity.duration && (
+                      <span style={{ fontSize: 12, color: '#9ca3af', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                        <Icons.Clock /> {activity.duration}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <button 
+                  onClick={() => onRemoveActivity(idx)}
+                  style={{ position: 'absolute', top: 12, right: 12, background: 'none', border: 'none', cursor: 'pointer', color: '#d1d5db', padding: 4 }}
+                  onMouseOver={e => e.currentTarget.style.color = '#ef4444'}
+                  onMouseOut={e => e.currentTarget.style.color = '#d1d5db'}
+                >
+                  <Icons.Trash />
+                </button>
+              </div>
+            ))}
+
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              {[
+                { type: 'activity', icon: <Icons.Activity />, label: 'Activity' },
+                { type: 'transfer', icon: <Icons.Transfer />, label: 'Transfer' },
+                { type: 'restaurant', icon: <Icons.Restaurant />, label: 'Dining' },
+              ].map(btn => (
+                <button 
+                  key={btn.type}
+                  onClick={() => onAddActivity(btn.type)}
+                  style={{ flex: 1, minWidth: 90, padding: 12, border: '2px dashed #e5e7eb', borderRadius: 8, background: 'transparent', cursor: 'pointer', color: '#9ca3af', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 12 }}
+                  onMouseOver={e => { e.currentTarget.style.borderColor = styles.accent; e.currentTarget.style.color = styles.accent; e.currentTarget.style.background = styles.accentLight; }}
+                  onMouseOut={e => { e.currentTarget.style.borderColor = '#e5e7eb'; e.currentTarget.style.color = '#9ca3af'; e.currentTarget.style.background = 'transparent'; }}
+                >
+                  {btn.icon} {btn.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Main App - On Brand
+    function ItineraryBuilder() {
+      const [tripDetails, setTripDetails] = useState({ title: 'Your Morocco Adventure', destination: 'Morocco', startDate: '2026-04-03', duration: 7 });
+      const [itinerary, setItinerary] = useState({});
+      const [modal, setModal] = useState(null);
+      const [showPreview, setShowPreview] = useState(false);
+      const [showClientView, setShowClientView] = useState(false);
+      const [shareLink, setShareLink] = useState(null);
+
+      const getDates = () => {
+        const dates = [];
+        const start = new Date(tripDetails.startDate);
+        for (let i = 0; i < tripDetails.duration; i++) {
+          const d = new Date(start);
+          d.setDate(start.getDate() + i);
+          dates.push(d);
+        }
+        return dates;
+      };
+
+      const getDateKey = (date) => date.toISOString().split('T')[0];
+      const dates = getDates();
+
+      const handleAddHotel = (dayIndex, hotel) => {
+        const newItinerary = { ...itinerary };
+        for (let i = 0; i < (hotel.nights || 1) && (dayIndex + i) < dates.length; i++) {
+          const key = getDateKey(dates[dayIndex + i]);
+          if (!newItinerary[key]) newItinerary[key] = { activities: [] };
+          newItinerary[key].hotel = { ...hotel, isFirstNight: i === 0 };
+        }
+        setItinerary(newItinerary);
+        setModal(null);
+      };
+
+      const handleRemoveHotel = (dayIndex) => {
+        const key = getDateKey(dates[dayIndex]);
+        const hotel = itinerary[key]?.hotel;
+        if (hotel) {
+          const newItinerary = { ...itinerary };
+          for (let i = 0; i < (hotel.nights || 1) && (dayIndex + i) < dates.length; i++) {
+            const removeKey = getDateKey(dates[dayIndex + i]);
+            if (newItinerary[removeKey]) delete newItinerary[removeKey].hotel;
+          }
+          setItinerary(newItinerary);
+        }
+      };
+
+      const handleAddActivity = (dayIndex, activity, type) => {
+        const key = getDateKey(dates[dayIndex]);
+        const newItinerary = { ...itinerary };
+        if (!newItinerary[key]) newItinerary[key] = { activities: [] };
+        if (!newItinerary[key].activities) newItinerary[key].activities = [];
+        newItinerary[key].activities.push({ ...activity, type });
+        setItinerary(newItinerary);
+        setModal(null);
+      };
+
+      const handleRemoveActivity = (dayIndex, activityIndex) => {
+        const key = getDateKey(dates[dayIndex]);
+        const newItinerary = { ...itinerary };
+        if (newItinerary[key]?.activities) {
+          newItinerary[key].activities.splice(activityIndex, 1);
+          setItinerary(newItinerary);
+        }
+      };
+
+      const generateSampleTrip = () => {
+        const newItinerary = {};
+        const sampleDates = getDates();
+        
+        // Day 1: Arrival in Marrakech
+        const day1Key = getDateKey(sampleDates[0]);
+        newItinerary[day1Key] = {
+          hotel: { ...TRAVEL_DATA.hotels[0], nights: 3, isFirstNight: true }, // Riad Adore, 3 nights
+          activities: [
+            { ...TRAVEL_DATA.transfers[0], type: 'transfer' }, // Airport arrival
+            { ...TRAVEL_DATA.restaurants[0], type: 'restaurant' }, // Dar Yacout dinner
+          ]
+        };
+
+        // Day 2: Marrakech exploration
+        const day2Key = getDateKey(sampleDates[1]);
+        newItinerary[day2Key] = {
+          hotel: { ...TRAVEL_DATA.hotels[0], nights: 3, isFirstNight: false },
+          activities: [
+            { ...TRAVEL_DATA.activities[1], type: 'activity' }, // Half-Day Medina Walking Tour
+            { ...TRAVEL_DATA.activities[2], type: 'activity' }, // Evening Medina Tour
+          ]
+        };
+
+        // Day 3: Marrakech culture
+        const day3Key = getDateKey(sampleDates[2]);
+        newItinerary[day3Key] = {
+          hotel: { ...TRAVEL_DATA.hotels[0], nights: 3, isFirstNight: false },
+          activities: [
+            { ...TRAVEL_DATA.activities[3], type: 'activity' }, // Jardins Majorelle & YSL
+            { ...TRAVEL_DATA.activities[6], type: 'activity' }, // Mostresso Art Foundation
+            { ...TRAVEL_DATA.restaurants[1], type: 'restaurant' }, // Al Fassia dinner
+          ]
+        };
+
+        // Day 4: Transfer to Atlas Mountains
+        const day4Key = getDateKey(sampleDates[3]);
+        newItinerary[day4Key] = {
+          hotel: { ...TRAVEL_DATA.hotels[2], nights: 2, isFirstNight: true }, // Dar Inslif, 2 nights
+          activities: [
+            { ...TRAVEL_DATA.transfers[1], type: 'transfer' }, // Marrakech to Zawiya Ahansal
+            { ...TRAVEL_DATA.activities[5], type: 'activity' }, // Mountain Prep with Kris Erickson
+          ]
+        };
+
+        // Day 5: Atlas Mountains adventure
+        const day5Key = getDateKey(sampleDates[4]);
+        newItinerary[day5Key] = {
+          hotel: { ...TRAVEL_DATA.hotels[2], nights: 2, isFirstNight: false },
+          activities: [
+            { ...TRAVEL_DATA.activities[4], type: 'activity' }, // Via Ferrata Ascent
+          ]
+        };
+
+        // Day 6: Return to Marrakech
+        const day6Key = getDateKey(sampleDates[5]);
+        newItinerary[day6Key] = {
+          hotel: { ...TRAVEL_DATA.hotels[1], nights: 1, isFirstNight: true }, // Amanjena, 1 night
+          activities: [
+            { id: 'trf_return', country: 'Morocco', title: 'Return to Marrakech', description_short: 'Scenic transfer back through the Atlas Mountains to Marrakech.', duration: '5h', type: 'transfer' },
+            { ...TRAVEL_DATA.activities[7], type: 'activity' }, // Evening Street Food Tour
+          ]
+        };
+
+        // Day 7: Departure
+        const day7Key = getDateKey(sampleDates[6]);
+        newItinerary[day7Key] = {
+          activities: [
+            { ...TRAVEL_DATA.activities[0], type: 'activity' }, // Morning at Leisure
+            { ...TRAVEL_DATA.transfers[2], type: 'transfer' }, // Departure transfer
+          ]
+        };
+
+        setItinerary(newItinerary);
+        setTripDetails({ ...tripDetails, duration: 7, title: 'Your Morocco Adventure', destination: 'Morocco' });
+      };
+
+      return (
+        <div style={{ minHeight: '100vh', background: '#f9fafb' }}>
+          {/* Header */}
+          <header style={{ background: 'white', borderBottom: '1px solid #e5e7eb', position: 'sticky', top: 0, zIndex: 100 }}>
+            <div style={{ maxWidth: 1400, margin: '0 auto', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <p style={{ fontSize: 12, color: '#9ca3af', marginBottom: 2 }}>Your Travel Proposal</p>
+                <h1 style={{ fontSize: 20, fontWeight: 700 }}>Itinerary Builder</h1>
+              </div>
+              <button 
+                onClick={() => setShowPreview(true)}
+                style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 20px', background: 'white', border: '1px solid #e5e7eb', borderRadius: 8, cursor: 'pointer', fontWeight: 500 }}
+              >
+                <Icons.Eye /> Preview
+              </button>
+              <button 
+                onClick={() => setShareLink(true)}
+                style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 24px', background: styles.accent, color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}
+              >
+                🔗 Share with Client
+              </button>
+            </div>
+          </header>
+
+          {/* Trip Details */}
+          <div style={{ maxWidth: 1400, margin: '0 auto', padding: 24 }}>
+            <div style={{ background: 'white', borderRadius: 12, padding: 32, marginBottom: 24, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
+                <div style={{ width: 32, height: 2, background: '#1a1a1a' }} />
+                <h2 style={{ fontSize: 24, fontWeight: 700 }}>Trip Details</h2>
+                <div style={{ flex: 1 }} />
+                <button 
+                  onClick={generateSampleTrip}
+                  style={{ 
+                    padding: '10px 20px', 
+                    background: 'white', 
+                    border: `2px solid ${styles.accent}`, 
+                    borderRadius: 8, 
+                    cursor: 'pointer', 
+                    color: styles.accent, 
+                    fontWeight: 600,
+                    fontSize: 14
+                  }}
+                  onMouseOver={e => { e.currentTarget.style.background = styles.accentLight; }}
+                  onMouseOut={e => { e.currentTarget.style.background = 'white'; }}
+                >
+                  Generate Sample 7-Day Trip
+                </button>
+              </div>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 24 }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: 12, color: '#6b7280', marginBottom: 8, fontWeight: 500 }}>Trip Title</label>
+                  <input 
+                    type="text" 
+                    value={tripDetails.title} 
+                    onChange={(e) => setTripDetails({...tripDetails, title: e.target.value})}
+                    style={{ width: '100%', padding: '12px 16px', border: '1px solid #e5e7eb', borderRadius: 8, fontSize: 15 }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: 12, color: '#6b7280', marginBottom: 8, fontWeight: 500 }}>Destination</label>
+                  <select 
+                    value={tripDetails.destination} 
+                    onChange={(e) => setTripDetails({...tripDetails, destination: e.target.value})}
+                    style={{ width: '100%', padding: '12px 16px', border: '1px solid #e5e7eb', borderRadius: 8, fontSize: 15, background: 'white' }}
+                  >
+                    <option>Morocco</option>
+                    <option>Portugal</option>
+                  </select>
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: 12, color: '#6b7280', marginBottom: 8, fontWeight: 500 }}>Start Date</label>
+                  <input 
+                    type="date" 
+                    value={tripDetails.startDate} 
+                    onChange={(e) => setTripDetails({...tripDetails, startDate: e.target.value})}
+                    style={{ width: '100%', padding: '12px 16px', border: '1px solid #e5e7eb', borderRadius: 8, fontSize: 15 }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: 12, color: '#6b7280', marginBottom: 8, fontWeight: 500 }}>Duration</label>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <button 
+                      onClick={() => setTripDetails({...tripDetails, duration: Math.max(1, tripDetails.duration - 1)})}
+                      style={{ width: 44, height: 44, borderRadius: 8, border: '1px solid #e5e7eb', background: 'white', cursor: 'pointer', fontSize: 18 }}
+                    >-</button>
+                    <span style={{ fontSize: 24, fontWeight: 700, width: 48, textAlign: 'center' }}>{tripDetails.duration}</span>
+                    <button 
+                      onClick={() => setTripDetails({...tripDetails, duration: tripDetails.duration + 1})}
+                      style={{ width: 44, height: 44, borderRadius: 8, border: '1px solid #e5e7eb', background: 'white', cursor: 'pointer', fontSize: 18 }}
+                    >+</button>
+                    <span style={{ fontSize: 14, color: '#6b7280' }}>days</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Days Grid */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 20 }}>
+              {dates.map((date, idx) => {
+                const key = getDateKey(date);
+                const dayData = itinerary[key] || {};
+                return (
+                  <DayCard
+                    key={key}
+                    date={date}
+                    dayNumber={idx + 1}
+                    hotel={dayData.hotel}
+                    activities={dayData.activities || []}
+                    onAddHotel={() => setModal({ type: 'hotel', dayIndex: idx })}
+                    onAddActivity={(type) => setModal({ type, dayIndex: idx })}
+                    onRemoveHotel={() => handleRemoveHotel(idx)}
+                    onRemoveActivity={(actIdx) => handleRemoveActivity(idx, actIdx)}
+                  />
+                );
+              })}
+            </div>
+          </div>
+
+          {modal && (
+            <SelectionModal
+              type={modal.type}
+              onSelect={(item) => {
+                if (modal.type === 'hotel') handleAddHotel(modal.dayIndex, item);
+                else handleAddActivity(modal.dayIndex, item, modal.type);
+              }}
+              onClose={() => setModal(null)}
+            />
+          )}
+
+          {showPreview && (
+            <PreviewModal
+              itinerary={itinerary}
+              tripDetails={tripDetails}
+              onClose={() => setShowPreview(false)}
+            />
+          )}
+
+          {shareLink && (
+            <ShareModal
+              tripDetails={tripDetails}
+              onClose={() => setShareLink(null)}
+              onOpenClientView={() => { setShareLink(null); setShowClientView(true); }}
+            />
+          )}
+
+          {showClientView && (
+            <ClientView
+              itinerary={itinerary}
+              tripDetails={tripDetails}
+              onClose={() => setShowClientView(false)}
+            />
+          )}
+        </div>
+      );
+    }
+
+    ReactDOM.render(<ItineraryBuilder />, document.getElementById('root'));
+  </script>
+</body>
+</html>
